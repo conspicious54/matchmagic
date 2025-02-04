@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Check, ArrowRight, Star } from 'lucide-react';
+import { ArrowRight, ChevronRight, Star } from 'lucide-react';
 import { packs } from '../../data/packs';
 import { useAuth } from '../auth/AuthContext';
 
@@ -10,7 +10,11 @@ export function PacksSection() {
     e.preventDefault();
     // @ts-ignore - Google is added via script tag
     if (window.google) {
-      window.google.accounts.id.prompt(() => {});
+      window.google.accounts.id.prompt((notification: any) => {
+        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+          console.log('Google Sign-In prompt not displayed:', notification.getNotDisplayedReason());
+        }
+      });
     }
   };
 
@@ -82,7 +86,7 @@ export function PacksSection() {
                   <div className="space-y-3 mb-8">
                     {pack.includes.map((feature, index) => (
                       <div key={index} className="flex items-center space-x-3">
-                        <Check className="w-5 h-5 text-green-500 flex-shrink-0" />
+                        <ChevronRight className="w-5 h-5 text-green-500 flex-shrink-0" />
                         <span className="text-gray-300">{feature}</span>
                       </div>
                     ))}

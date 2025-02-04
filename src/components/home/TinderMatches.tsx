@@ -6,7 +6,11 @@ export function TinderMatches() {
     e.preventDefault();
     // @ts-ignore - Google is added via script tag
     if (window.google) {
-      window.google.accounts.id.prompt(() => {});
+      window.google.accounts.id.prompt((notification: any) => {
+        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+          console.log('Google Sign-In prompt not displayed:', notification.getNotDisplayedReason());
+        }
+      });
     }
   };
 

@@ -18,8 +18,8 @@ WORKDIR /app
 
 # Copy build artifacts and server
 COPY --from=builder /app/dist ./dist
-COPY index.js ./
-COPY package*.json ./
+COPY --from=builder /app/server.js ./
+COPY --from=builder /app/package*.json ./
 
 # Install production dependencies only
 RUN npm ci --production
@@ -32,4 +32,4 @@ ENV PORT=8080
 EXPOSE 8080
 
 # Start the server
-CMD ["npm", "start"]
+CMD ["node", "server.js"]
