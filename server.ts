@@ -1,23 +1,18 @@
-const express = require('express');
-const path = require('path');
-const compression = require('compression');
+import express from 'express';
+import path from 'path';
+import compression from 'compression';
 
 const app = express();
 const port = process.env.PORT || 8080;
-
-// Log when server starts (this will help us debug)
-console.log('Server starting up...');
 
 // Enable gzip compression
 app.use(compression());
 
 // Serve static files from the React build
 app.use(express.static(path.join(__dirname, 'dist')));
-console.log('Static directory set to:', path.join(__dirname, 'dist'));
 
 // Handle all other routes by serving index.html
 app.get('*', (req, res) => {
-  console.log('Received request for:', req.url);
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
