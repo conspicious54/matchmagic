@@ -1,10 +1,6 @@
-import express from 'express';
-import path from 'path';
-import compression from 'compression';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const express = require('express');
+const path = require('path');
+const compression = require('compression');
 
 const app = express();
 const port = process.env.PORT || 8080;
@@ -12,6 +8,7 @@ const port = process.env.PORT || 8080;
 // Log when server starts (this will help us debug)
 console.log('Server starting up...');
 console.log('PORT environment variable:', process.env.PORT);
+console.log('Current directory:', __dirname);
 
 // Enable gzip compression
 app.use(compression());
@@ -27,7 +24,7 @@ app.get('*', (req, res) => {
 });
 
 // Start server
-const server = app.listen(port, () => {
+const server = app.listen(port, '0.0.0.0', () => {
   console.log(`Server running on port ${port}`);
   console.log('Server address:', server.address());
 });
