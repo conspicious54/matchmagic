@@ -2,7 +2,8 @@ import { ArrowRight, Heart, Sparkles, Trophy } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
 
 export function TinderMatches() {
-  const handleGoogleSignIn = () => {
+  const handleGoogleSignIn = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
     // @ts-ignore - Google is added via script tag
     if (window.google) {
       window.google.accounts.id.prompt();

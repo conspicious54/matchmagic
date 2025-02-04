@@ -36,7 +36,8 @@ function PricingPage() {
     "Exclusive pre-release features"
   ];
 
-  const handleStartTrial = () => {
+  const handleGoogleSignIn = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
     // @ts-ignore - Google is added via script tag
     if (window.google) {
       window.google.accounts.id.prompt();
@@ -135,7 +136,7 @@ function PricingPage() {
                 </div>
 
                 <button
-                  onClick={handleStartTrial}
+                  onClick={handleGoogleSignIn}
                   className={`w-full py-4 px-6 rounded-xl font-semibold mb-8 transition-all duration-300 ${
                     selectedPlan === plan
                       ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-lg shadow-pink-500/25'

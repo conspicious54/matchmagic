@@ -7,7 +7,8 @@ export function PhotoWall() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-  const handleGoogleSignIn = () => {
+  const handleGoogleSignIn = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
     // @ts-ignore - Google is added via script tag
     if (window.google) {
       window.google.accounts.id.prompt();
