@@ -1,23 +1,25 @@
-# Use the official Node.js image
-FROM node:20-slim
-
-# Set working directory
+# Build stage
+FROM node:20-slim as builder
 WORKDIR /app
-
-# Copy package files
 COPY package*.json ./
-
-# Install dependencies
 RUN npm ci
-
-# Copy project files
 COPY . .
-
-# Build the app
 RUN npm run build
+
+# Production stage
+FROM node:20-slim
+WORKDIR /app
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/server.cjs ./
+COPY package*.json ./
+RUN npm ci --production
+
+# Set environment variables
+ENV NODE_ENV=production
+ENV PORT=8080
 
 # Expose the port
 EXPOSE 8080
 
-# Start the app
-CMD [ "npm", "run", "preview" ]
+# Start the server
+CMD ["npm", "start"]
