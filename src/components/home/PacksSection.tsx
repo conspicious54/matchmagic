@@ -10,7 +10,7 @@ export function PacksSection() {
     e.preventDefault();
     // @ts-ignore - Google is added via script tag
     if (window.google) {
-      window.google.accounts.id.prompt();
+      window.google.accounts.id.prompt(() => {});
     }
   };
 
