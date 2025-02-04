@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Maximize2, ZoomIn } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
+import { examplePhotos } from '../../data/examples';
 
 export function PhotoWall() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -12,21 +13,6 @@ export function PhotoWall() {
       window.google.accounts.id.prompt();
     }
   };
-
-  const examplePhotos = [
-    "https://preview.redd.it/hiring-ai-artist-hyper-realistic-human-images-v0-njvnx7w1ykjc1.png?width=768&format=png&auto=webp&s=cd2539150174a752ccbd19e2620b85eee59f084d",
-    "https://preview.redd.it/realistic-ordinary-woman-which-image-could-fool-you-v0-vx63py4h2dzb1.png?width=1080&crop=smart&auto=webp&s=6fa0dd213ca17b03a51fe14b50213a1cb46b78b6",
-    "https://i.redd.it/portraits-of-average-looking-humans-v0-8zbbxzwawtic1.jpg?width=1024&format=pjpg&auto=webp&s=8a27e2a4e699a1bd3197f46992b776165330d9ed",
-    "https://preview.redd.it/are-these-real-or-ai-v0-yiuwoc3ewr2c1.png?width=640&crop=smart&auto=webp&s=cedbcc3c52966b83bba007275d9303cbcab5eae1",
-    "https://photoai.com/cdn-cgi/image/format=jpeg,fit=cover,width=1024,height=1536,quality=85/https://r2-us-west.photoai.com/1725083404-1a0e88162957d7d7d642b6367c5c872f-1.png",
-    "https://photoai.com/cdn-cgi/image/format=jpeg,fit=cover,width=1024,height=1536,quality=85/https://r2-us-west.photoai.com/1725057488-0aab73c411bf4f26eb027632164c5505-1.png",
-    "https://photoai.com/cdn-cgi/image/format=jpeg,fit=cover,width=1024,height=1536,quality=85/https://r2-us-west.photoai.com/1725037177-90364f0fc033bff790331b917e6c83fd-1.png",
-    "https://photoai.com/cdn-cgi/image/format=jpeg,fit=cover,width=1024,height=1536,quality=85/https://r2-us-west.photoai.com/1726223738-432ce73ddf6df05a8c15058ba9d3aa2f-3.png",
-    "https://photoai.com/cdn-cgi/image/format=jpeg,fit=cover,width=1024,height=1536,quality=85/https://r2-us-west.photoai.com/1726197487-2024252e2d1d4f7700839208b78b0311-4.png",
-    "https://photoai.com/cdn-cgi/image/format=jpeg,fit=cover,width=1024,height=1536,quality=85/https://r2-us-west.photoai.com/1725042606-ee76e84a7dffb2f59031752651677493-1.png",
-    "https://photoai.com/cdn-cgi/image/format=jpeg,fit=cover,width=1024,height=1536,quality=85/https://r2-us-west.photoai.com/1726234309-ce6ed0816a56fdae2d80bfae69e944d7-4.png",
-    "https://photoai.com/cdn-cgi/image/format=jpeg,fit=cover,width=1024,height=1536,quality=85/https://r2-us-west.photoai.com/1726195700-e1b170f5774a7205ce12febb8adb3088-3.png"
-  ];
 
   return (
     <section className="py-20 bg-black/50">
@@ -53,10 +39,10 @@ export function PhotoWall() {
               className="relative group cursor-pointer break-inside-avoid mb-4"
               onMouseEnter={() => setHoveredIndex(i)}
               onMouseLeave={() => setHoveredIndex(null)}
-              onClick={() => setSelectedImage(photo)}
+              onClick={() => setSelectedImage(photo.url)}
             >
               <img
-                src={photo}
+                src={photo.url}
                 alt="AI Generated"
                 className="w-full rounded-lg transition-all duration-300 group-hover:scale-[1.02]"
               />

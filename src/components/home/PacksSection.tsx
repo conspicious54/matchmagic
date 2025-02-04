@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Check, ArrowRight, Star } from 'lucide-react';
 import { packs } from '../../data/packs';
 import { useAuth } from '../auth/AuthContext';
+import type { Pack } from '../../data/types';
 
 export function PacksSection() {
   const [hoveredPack, setHoveredPack] = useState<string | null>(null);
