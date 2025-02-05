@@ -128,6 +128,7 @@ export function ModelSidebar() {
       setPrompt(data.prompt);
       setStyle(data.style);
       setCameraAngle(data.cameraAngle);
+      setPhotoCount(data.photoCount);
       setCameraType(data.cameraType);
     };
 
@@ -142,20 +143,21 @@ export function ModelSidebar() {
     style: "Choose a visual style or film simulation that sets the overall mood and look of your photo.",
     emotion: "Select the emotional expression or feeling you want to convey in the photo.",
     cameraAngle: "Pick the angle from which the photo will be taken. Different angles can dramatically change how you look.",
-    cameraType: "Select the camera model to simulate different image characteristics and qualities."
+    cameraType: "Select the camera model to simulate different image characteristics and qualities.",
+    photoCount: "Choose how many photos to generate (1-5). Each photo costs 1 credit."
   };
 
   return (
-    <aside className="w-full md:w-80 bg-gray-900/50 border-r border-gray-800/50 backdrop-blur-xl h-[calc(100vh-8rem)] md:h-[calc(100vh-4rem)] md:fixed md:left-0 top-16 flex flex-col relative">
+    <aside className="w-full md:w-80 bg-gray-900/50 border-r border-gray-800/50 backdrop-blur-xl h-[calc(100vh-8rem)] md:h-[calc(100vh-4rem)] overflow-hidden flex flex-col">
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto px-6 pt-6">
+      <div className="flex-1 overflow-y-auto px-6 pt-6 pb-40 md:pb-32">
         {/* Center content on mobile */}
         <div className="max-w-sm mx-auto md:max-w-none md:mx-0 space-y-8">
           {/* Model Status */}
           <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-lg p-4 border border-gray-700/50">
             {modelStatus.isLoading ? (
               <div className="space-y-3">
-                <div className="flex items-center space-x-3 justify-center">
+                <div className="flex items-center space-x-3 justify-center md:justify-start">
                   <div className="animate-spin rounded-full h-4 w-4 border-2 border-pink-500 border-t-transparent"></div>
                   <span className="text-gray-300">Loading your model...</span>
                 </div>
@@ -336,32 +338,51 @@ export function ModelSidebar() {
       </div>
 
       {/* Fixed Bottom Controls */}
-      <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-gray-900 via-gray-900/95 to-transparent">
+      <div className="fixed bottom-16 md:bottom-0 left-0 right-0 md:left-auto md:right-auto md:w-80 p-6 bg-gradient-to-t from-gray-900 via-gray-900/95 to-transparent">
         {/* Photo Count Selector */}
-        <div className="mb-4 flex items-center justify-center space-x-4">
-          <button
-            onClick={() => setPhotoCount(Math.max(1, photoCount - 1))}
-            className="p-2 rounded-lg bg-gray-800/50 text-gray-400 hover:text-white transition-colors"
-            disabled={photoCount <= 1}
-          >
-            <Minus className="w-4 h-4" />
-          </button>
-          
-          <span className="text-lg font-medium text-white">{photoCount} Photos</span>
-          
-          <button
-            onClick={() => setPhotoCount(Math.min(5, photoCount + 1))}
-            className="p-2 rounded-lg bg-gray-800/50 text-gray-400 hover:text-white transition-colors"
-            disabled={photoCount >= 5}
-          >
-            <Plus className="w-4 h-4" />
-          </button>
+        <div className="mb-4">
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-sm font-medium text-gray-200">Number of Photos</label>
+            <div className="group relative">
+              <HelpCircle className="w-4 h-4 text-gray-400 hover:text-white cursor-help" />
+              <div className="absolute bottom-full right-0 mb-2 w-64 p-2 bg-gray-800 rounded-lg text-xs text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                {tooltips.photoCount}
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center justify-center space-x-4">
+            <button
+              onClick={() => {
+                const newCount = Math.max(1, photoCount - 1);
+                setPhotoCount(newCount);
+                setGlobalPrompt(prompt, style, cameraAngle, newCount, cameraType);
+              }}
+              className="p-2 rounded-lg bg-gray-800/50 text-gray-400 hover:text-white transition-colors"
+              disabled={photoCount <= 1}
+            >
+              <Minus className="w-4 h-4" />
+            </button>
+            
+            <span className="text-lg font-medium text-white w-20 text-center">{photoCount} Photo{photoCount !== 1 ? 's' : ''}</span>
+            
+            <button
+              onClick={() => {
+                const newCount = Math.min(5, photoCount + 1);
+                setPhotoCount(newCount);
+                setGlobalPrompt(prompt, style, cameraAngle, newCount, cameraType);
+              }}
+              className="p-2 rounded-lg bg-gray-800/50 text-gray-400 hover:text-white transition-colors"
+              disabled={photoCount >= 5}
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         {/* Take Photo Button */}
         <button className="w-full px-4 py-3 bg-gradient-to-r from-pink-500 to-rose-500 rounded-lg font-semibold hover:from-pink-600 hover:to-rose-600 transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-pink-500/25 flex items-center justify-center space-x-2 text-white">
           <Camera className="w-5 h-5" />
-          <span>Take {photoCount} Photo{photoCount > 1 ? 's' : ''} ({photoCount} credit{photoCount > 1 ? 's' : ''})</span>
+          <span>Take {photoCount} Photo{photoCount !== 1 ? 's' : ''} ({photoCount} credit{photoCount !== 1 ? 's' : ''})</span>
         </button>
       </div>
     </aside>
