@@ -129,7 +129,7 @@ export function ModelSidebar() {
   };
 
   return (
-    <aside className="w-80 bg-gray-900/50 border-r border-gray-800/50 backdrop-blur-xl p-6 space-y-8 h-[calc(100vh-4rem)] overflow-y-auto fixed left-0 top-16">
+    <aside className="w-80 bg-gray-900/50 border-r border-gray-800/50 backdrop-blur-xl p-6 space-y-8 h-[calc(100vh-4rem)] overflow-y-auto fixed md:left-0 top-16">
       {/* Model Status */}
       <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-lg p-4 border border-gray-700/50">
         {modelStatus.isLoading ? (

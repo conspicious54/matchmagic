@@ -22,7 +22,7 @@ interface TrainingImage {
 }
 
 const MAX_PHOTOS = 15;
-const MINIMUM_PHOTOS = 10;
+const MINIMUM_PHOTOS = 5;
 
 const ETHNICITIES = [
   "African",
@@ -129,6 +129,16 @@ export default function CreateModelPage() {
   };
 
   const handleSubmit = async () => {
+    // Validate again before final submission
+    if (!profile.consentAgreed) {
+      setError('Please agree to the terms and conditions to continue');
+      return;
+    }
+    if (images.length < MINIMUM_PHOTOS) {
+      setError(`Please upload at least ${MINIMUM_PHOTOS} photos to continue`);
+      return;
+    }
+
     if (!user) {
       setError('User not authenticated');
       return;
@@ -194,13 +204,15 @@ export default function CreateModelPage() {
       setError('Please fill in all required fields');
       return;
     }
-    if (step === 3 && !profile.consentAgreed) {
-      setError('Please agree to the terms');
-      return;
-    }
-    if (step === 3 && images.length < MINIMUM_PHOTOS) {
-      setError(`Please upload at least ${MINIMUM_PHOTOS} photos`);
-      return;
+    if (step === 3) {
+      if (!profile.consentAgreed) {
+        setError('Please agree to the terms and conditions to continue');
+        return;
+      }
+      if (images.length < MINIMUM_PHOTOS) {
+        setError(`Please upload at least ${MINIMUM_PHOTOS} photos to continue`);
+        return;
+      }
     }
     setError(null);
     setStep(prev => prev + 1);
@@ -458,19 +470,31 @@ export default function CreateModelPage() {
                 )}
 
                 <div className="space-y-4">
-                  <label className="flex items-center space-x-2">
+                  <label className={`flex items-center space-x-2 ${!profile.consentAgreed && 'animate-[shake_0.5s_ease-in-out]'}`}>
                     <input
                       type="checkbox"
                       checked={profile.consentAgreed}
-                      onChange={(e) =>
-                        setProfile({ ...profile, consentAgreed: e.target.checked })
-                      }
-                      className="rounded border-gray-700 text-pink-500 focus:ring-pink-500 transition-colors"
+                      onChange={(e) => setProfile({ ...profile, consentAgreed: e.target.checked })}
+                      className={`rounded border-gray-700 text-pink-500 focus:ring-pink-500 transition-colors ${
+                        !profile.consentAgreed ? 'border-red-500' : ''
+                      }`}
                     />
-                    <span className="text-sm text-gray-400">
+                    <span className={`text-sm ${!profile.consentAgreed ? 'text-red-400' : 'text-gray-400'}`}>
                       I agree to the terms and conditions and consent to AI model training
                     </span>
                   </label>
+                  
+                  {/* Photo count indicator */}
+                  <div className="flex items-center justify-between text-sm">
+                    <span className={`${
+                      images.length < MINIMUM_PHOTOS ? 'text-red-400' : 'text-green-400'
+                    }`}>
+                      {images.length} of {MINIMUM_PHOTOS} required photos uploaded
+                    </span>
+                    <span className="text-gray-400">
+                      Maximum: {MAX_PHOTOS} photos
+                    </span>
+                  </div>
                 </div>
               </div>
             )}

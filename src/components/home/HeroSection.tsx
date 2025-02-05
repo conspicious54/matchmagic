@@ -39,8 +39,8 @@ export function HeroSection() {
             </div>
           </div>
 
-          <div className="max-w-md mx-auto space-y-4">
-            <div className="w-full">
+          <div className="flex flex-col items-center justify-center space-y-4 mt-8">
+            <div className="w-full max-w-md mx-auto">
               <GoogleButton />
             </div>
             <p className="text-sm text-gray-400">
