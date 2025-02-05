@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Upload, ChevronRight, ChevronLeft, Loader2, AlertCircle, Camera, Sparkles, User2, Info } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../components/auth/AuthContext';
+import { uploadTrainingPhoto, deleteTrainingPhoto } from '../lib/upload';
 
 interface UserProfile {
   name: string;
@@ -20,6 +21,7 @@ interface TrainingImage {
   previewUrl: string;
   uploadStatus: 'pending' | 'uploading' | 'success' | 'error';
   error?: string;
+  path?: string;
 }
 
 const MAX_PHOTOS = 15;
@@ -70,45 +72,6 @@ export default function CreateModelPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const uploadImageToSupabase = async (file: File, userId: string): Promise<string> => {
-    const timestamp = Date.now();
-    const extension = file.name.split('.').pop();
-    const filename = `${timestamp}-${Math.random().toString(36).substring(2)}.${extension}`;
-    const filePath = `users/${userId}/training/${filename}`;
-
-    // Upload to Supabase Storage
-    const { error: uploadError } = await supabase.storage
-      .from('user-photos')
-      .upload(filePath, file);
-
-    if (uploadError) {
-      throw uploadError;
-    }
-
-    // Insert record into user_photos table
-    const { error: dbError } = await supabase
-      .from('user_photos')
-      .insert({
-        user_id: userId,
-        storage_path: filePath,
-        original_name: file.name,
-        size: file.size,
-        mime_type: file.type,
-        metadata: {
-          uploadedAt: new Date().toISOString(),
-          purpose: 'training'
-        }
-      });
-
-    if (dbError) {
-      // If database insert fails, try to clean up the uploaded file
-      await supabase.storage.from('user-photos').remove([filePath]);
-      throw dbError;
-    }
-
-    return filePath;
-  };
-
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files || !user) return;
@@ -140,17 +103,25 @@ export default function CreateModelPage() {
         ));
 
         // Upload to Supabase
-        await uploadImageToSupabase(image.file, user.id);
+        const { path, error } = await uploadTrainingPhoto(user.id, image.file);
+        
+        if (error) {
+          throw new Error(error);
+        }
 
         // Update status to success
         setImages(prev => prev.map(img => 
-          img.id === image.id ? { ...img, uploadStatus: 'success' } : img
+          img.id === image.id ? { ...img, uploadStatus: 'success', path } : img
         ));
       } catch (error) {
         console.error('Error uploading photo:', error);
         // Update status to error
         setImages(prev => prev.map(img => 
-          img.id === image.id ? { ...img, uploadStatus: 'error', error: 'Upload failed' } : img
+          img.id === image.id ? { 
+            ...img, 
+            uploadStatus: 'error', 
+            error: error instanceof Error ? error.message : 'Upload failed' 
+          } : img
         ));
       }
     }
@@ -162,34 +133,11 @@ export default function CreateModelPage() {
 
     setIsLoading(true);
     try {
-      if (imageToRemove.uploadStatus === 'success') {
-        // Get the photo record from the database
-        const { data: photos, error: fetchError } = await supabase
-          .from('user_photos')
-          .select('storage_path')
-          .eq('user_id', user.id)
-          .eq('storage_path', `users/${user.id}/training/${id}`);
-
-        if (fetchError) throw fetchError;
-
-        if (photos?.[0]) {
-          // Delete from storage
-          const { error: storageError } = await supabase.storage
-            .from('user-photos')
-            .remove([photos[0].storage_path]);
-
-          if (storageError) throw storageError;
-
-          // Delete from database
-          const { error: dbError } = await supabase
-            .from('user_photos')
-            .delete()
-            .eq('storage_path', photos[0].storage_path);
-
-          if (dbError) throw dbError;
-        }
+      if (imageToRemove.uploadStatus === 'success' && imageToRemove.path) {
+        const { error } = await deleteTrainingPhoto(user.id, imageToRemove.path);
+        if (error) throw new Error(error);
       }
-
+      
       // Remove from local state
       setImages(prev => prev.filter(img => img.id !== id));
       
