@@ -93,6 +93,19 @@ const CAMERA_ANGLE_OPTIONS = [
   "Over the Shoulder"
 ];
 
+const CAMERA_TYPE_OPTIONS = [
+  "Canon EOS R5",
+  "Sony A7III",
+  "Nikon Z6",
+  "Fujifilm X-T4",
+  "Leica Q2",
+  "Phase One IQ4",
+  "Hasselblad X2D",
+  "Sony A1",
+  "Canon EOS R6",
+  "Leica M11"
+];
+
 export function ModelSidebar() {
   const { user } = useAuth();
   const [modelStatus, setModelStatus] = useState<ModelStatus>({
@@ -106,6 +119,7 @@ export function ModelSidebar() {
   const [emotion, setEmotion] = useState('');
   const [cameraAngle, setCameraAngle] = useState('');
   const [photoCount, setPhotoCount] = useState(5);
+  const [cameraType, setCameraType] = useState('');
 
   // Listen for prompt updates
   useEffect(() => {
@@ -114,6 +128,7 @@ export function ModelSidebar() {
       setPrompt(data.prompt);
       setStyle(data.style);
       setCameraAngle(data.cameraAngle);
+      setCameraType(data.cameraType);
     };
 
     window.addEventListener('promptUpdate', handlePromptUpdate as EventListener);
@@ -126,20 +141,21 @@ export function ModelSidebar() {
     accuracy: "Adjust how closely the AI should follow your reference photos. 'Creative' allows more artistic freedom, while 'Accurate' stays closer to your original look.",
     style: "Choose a visual style or film simulation that sets the overall mood and look of your photo.",
     emotion: "Select the emotional expression or feeling you want to convey in the photo.",
-    cameraAngle: "Pick the angle from which the photo will be taken. Different angles can dramatically change how you look."
+    cameraAngle: "Pick the angle from which the photo will be taken. Different angles can dramatically change how you look.",
+    cameraType: "Select the camera model to simulate different image characteristics and qualities."
   };
 
   return (
-    <aside className="w-80 bg-gray-900/50 border-r border-gray-800/50 backdrop-blur-xl p-6 space-y-8 h-[calc(100vh-4rem)] md:fixed md:left-0 top-16 overflow-hidden flex flex-col">
+    <aside className="w-full md:w-80 bg-gray-900/50 border-r border-gray-800/50 backdrop-blur-xl h-[calc(100vh-8rem)] md:h-[calc(100vh-4rem)] md:fixed md:left-0 top-16 flex flex-col relative">
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto space-y-8 pb-32">
+      <div className="flex-1 overflow-y-auto px-6 pt-6">
         {/* Center content on mobile */}
-        <div className="md:text-left text-center">
+        <div className="max-w-sm mx-auto md:max-w-none md:mx-0 space-y-8">
           {/* Model Status */}
           <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-lg p-4 border border-gray-700/50">
             {modelStatus.isLoading ? (
               <div className="space-y-3">
-                <div className="flex items-center space-x-3 justify-center md:justify-start">
+                <div className="flex items-center space-x-3 justify-center">
                   <div className="animate-spin rounded-full h-4 w-4 border-2 border-pink-500 border-t-transparent"></div>
                   <span className="text-gray-300">Loading your model...</span>
                 </div>
@@ -149,19 +165,19 @@ export function ModelSidebar() {
                 </div>
               </div>
             ) : modelStatus.name ? (
-              <div>
+              <div className="text-center md:text-left">
                 <h3 className="font-semibold text-lg text-white">{modelStatus.name}</h3>
                 <p className="text-sm text-gray-300">Your model is ready</p>
               </div>
             ) : (
-              <div className="text-gray-300 text-sm">
+              <div className="text-gray-300 text-sm text-center md:text-left">
                 Your model is still in the works. This usually takes ~45 minutes, but can take up to 4-5 hours for best results.
               </div>
             )}
           </div>
 
           {/* Controls Section */}
-          <div className="mt-auto space-y-8">
+          <div className="space-y-8">
             {/* Prompt Input */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -177,7 +193,7 @@ export function ModelSidebar() {
                 value={prompt}
                 onChange={(e) => {
                   setPrompt(e.target.value);
-                  setGlobalPrompt(e.target.value, style, cameraAngle);
+                  setGlobalPrompt(e.target.value, style, cameraAngle, photoCount, cameraType);
                 }}
                 className="w-full h-24 px-3 py-2 bg-gray-800/50 rounded-lg border border-gray-700 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 transition-all text-white placeholder-gray-500"
                 placeholder="Describe your photo..."
@@ -230,7 +246,7 @@ export function ModelSidebar() {
                 value={style}
                 onChange={(e) => {
                   setStyle(e.target.value);
-                  setGlobalPrompt(prompt, e.target.value, cameraAngle);
+                  setGlobalPrompt(prompt, e.target.value, cameraAngle, photoCount, cameraType);
                 }}
                 className="w-full px-3 py-2 bg-gray-800/50 rounded-lg border border-gray-700 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 transition-all text-white"
               >
@@ -279,12 +295,38 @@ export function ModelSidebar() {
                 value={cameraAngle}
                 onChange={(e) => {
                   setCameraAngle(e.target.value);
-                  setGlobalPrompt(prompt, style, e.target.value);
+                  setGlobalPrompt(prompt, style, e.target.value, photoCount, cameraType);
                 }}
                 className="w-full px-3 py-2 bg-gray-800/50 rounded-lg border border-gray-700 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 transition-all text-white"
               >
                 <option value="" className="bg-gray-900 text-gray-300">Select angle</option>
                 {CAMERA_ANGLE_OPTIONS.map((option) => (
+                  <option key={option} value={option} className="bg-gray-900 text-white">{option}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Camera Type Dropdown */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-gray-200">Camera Type</label>
+                <div className="group relative">
+                  <HelpCircle className="w-4 h-4 text-gray-400 hover:text-white cursor-help" />
+                  <div className="absolute bottom-full right-0 mb-2 w-64 p-2 bg-gray-800 rounded-lg text-xs text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                    {tooltips.cameraType}
+                  </div>
+                </div>
+              </div>
+              <select
+                value={cameraType}
+                onChange={(e) => {
+                  setCameraType(e.target.value);
+                  setGlobalPrompt(prompt, style, cameraAngle, photoCount, e.target.value);
+                }}
+                className="w-full px-3 py-2 bg-gray-800/50 rounded-lg border border-gray-700 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 transition-all text-white"
+              >
+                <option value="" className="bg-gray-900 text-gray-300">Select camera</option>
+                {CAMERA_TYPE_OPTIONS.map((option) => (
                   <option key={option} value={option} className="bg-gray-900 text-white">{option}</option>
                 ))}
               </select>
