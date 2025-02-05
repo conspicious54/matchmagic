@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Upload, ChevronRight, ChevronLeft, Loader2, AlertCircle, Camera, Sparkles, User2, Info } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../components/auth/AuthContext';
-import { uploadUserPhoto, deleteUserPhoto } from '../lib/storage';
 
 interface UserProfile {
   name: string;
@@ -19,6 +18,8 @@ interface TrainingImage {
   id: string;
   file: File;
   previewUrl: string;
+  uploadStatus: 'pending' | 'uploading' | 'success' | 'error';
+  error?: string;
 }
 
 const MAX_PHOTOS = 15;
@@ -69,6 +70,45 @@ export default function CreateModelPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  const uploadImageToSupabase = async (file: File, userId: string): Promise<string> => {
+    const timestamp = Date.now();
+    const extension = file.name.split('.').pop();
+    const filename = `${timestamp}-${Math.random().toString(36).substring(2)}.${extension}`;
+    const filePath = `users/${userId}/training/${filename}`;
+
+    // Upload to Supabase Storage
+    const { error: uploadError } = await supabase.storage
+      .from('user-photos')
+      .upload(filePath, file);
+
+    if (uploadError) {
+      throw uploadError;
+    }
+
+    // Insert record into user_photos table
+    const { error: dbError } = await supabase
+      .from('user_photos')
+      .insert({
+        user_id: userId,
+        storage_path: filePath,
+        original_name: file.name,
+        size: file.size,
+        mime_type: file.type,
+        metadata: {
+          uploadedAt: new Date().toISOString(),
+          purpose: 'training'
+        }
+      });
+
+    if (dbError) {
+      // If database insert fails, try to clean up the uploaded file
+      await supabase.storage.from('user-photos').remove([filePath]);
+      throw dbError;
+    }
+
+    return filePath;
+  };
+
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files || !user) return;
@@ -79,42 +119,77 @@ export default function CreateModelPage() {
       return;
     }
 
-    setIsLoading(true);
     setError(null);
 
-    try {
-      // Create preview images first
-      const newImages: TrainingImage[] = Array.from(files).map((file) => ({
-        id: Date.now() + Math.random().toString(),
-        file,
-        previewUrl: URL.createObjectURL(file)
-      }));
+    // Create preview images and add to state with pending status
+    const newImages: TrainingImage[] = Array.from(files).map((file) => ({
+      id: Date.now() + Math.random().toString(),
+      file,
+      previewUrl: URL.createObjectURL(file),
+      uploadStatus: 'pending'
+    }));
 
-      setImages(prev => [...prev, ...newImages]);
+    setImages(prev => [...prev, ...newImages]);
 
-      // Upload each image to Supabase
-      for (const image of newImages) {
-        await uploadUserPhoto(user.id, image.file);
+    // Upload each image
+    for (const image of newImages) {
+      try {
+        // Update status to uploading
+        setImages(prev => prev.map(img => 
+          img.id === image.id ? { ...img, uploadStatus: 'uploading' } : img
+        ));
+
+        // Upload to Supabase
+        await uploadImageToSupabase(image.file, user.id);
+
+        // Update status to success
+        setImages(prev => prev.map(img => 
+          img.id === image.id ? { ...img, uploadStatus: 'success' } : img
+        ));
+      } catch (error) {
+        console.error('Error uploading photo:', error);
+        // Update status to error
+        setImages(prev => prev.map(img => 
+          img.id === image.id ? { ...img, uploadStatus: 'error', error: 'Upload failed' } : img
+        ));
       }
-    } catch (error) {
-      console.error('Error uploading photos:', error);
-      setError('Failed to upload one or more photos. Please try again.');
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const removeImage = async (id: string) => {
-    if (!user) return;
-
     const imageToRemove = images.find(img => img.id === id);
-    if (!imageToRemove) return;
+    if (!imageToRemove || !user) return;
 
     setIsLoading(true);
     try {
-      // Delete from Supabase
-      await deleteUserPhoto(user.id, id);
-      
+      if (imageToRemove.uploadStatus === 'success') {
+        // Get the photo record from the database
+        const { data: photos, error: fetchError } = await supabase
+          .from('user_photos')
+          .select('storage_path')
+          .eq('user_id', user.id)
+          .eq('storage_path', `users/${user.id}/training/${id}`);
+
+        if (fetchError) throw fetchError;
+
+        if (photos?.[0]) {
+          // Delete from storage
+          const { error: storageError } = await supabase.storage
+            .from('user-photos')
+            .remove([photos[0].storage_path]);
+
+          if (storageError) throw storageError;
+
+          // Delete from database
+          const { error: dbError } = await supabase
+            .from('user_photos')
+            .delete()
+            .eq('storage_path', photos[0].storage_path);
+
+          if (dbError) throw dbError;
+        }
+      }
+
       // Remove from local state
       setImages(prev => prev.filter(img => img.id !== id));
       
@@ -464,6 +539,18 @@ export default function CreateModelPage() {
                         >
                           ×
                         </button>
+                        {/* Upload Status Indicator */}
+                        <div className={`absolute bottom-2 right-2 px-2 py-1 rounded text-xs ${
+                          image.uploadStatus === 'success' ? 'bg-green-500/80' :
+                          image.uploadStatus === 'error' ? 'bg-red-500/80' :
+                          image.uploadStatus === 'uploading' ? 'bg-yellow-500/80' :
+                          'bg-gray-500/80'
+                        }`}>
+                          {image.uploadStatus === 'success' ? 'Uploaded' :
+                           image.uploadStatus === 'error' ? 'Failed' :
+                           image.uploadStatus === 'uploading' ? 'Uploading...' :
+                           'Pending'}
+                        </div>
                       </div>
                     ))}
                   </div>
