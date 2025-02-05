@@ -151,7 +151,6 @@ export function ModelSidebar() {
     <aside className="w-full md:w-80 bg-gray-900/50 border-r border-gray-800/50 backdrop-blur-xl h-[calc(100vh-8rem)] md:h-[calc(100vh-4rem)] overflow-hidden flex flex-col">
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto px-6 pt-6 pb-40 md:pb-32">
-        {/* Center content on mobile */}
         <div className="max-w-sm mx-auto md:max-w-none md:mx-0 space-y-8">
           {/* Model Status */}
           <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-lg p-4 border border-gray-700/50">

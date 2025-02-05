@@ -17,8 +17,11 @@ export function CreditsPopup({ isOpen, onClose }: CreditsPopupProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 md:p-8">
-      <div className="relative w-full max-w-2xl bg-gray-900 rounded-2xl shadow-2xl max-h-[90vh] md:max-h-[85vh] overflow-hidden">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center">
+      <div 
+        className="relative w-full h-full md:h-auto md:max-w-2xl bg-gray-900 md:rounded-2xl shadow-2xl overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -28,7 +31,7 @@ export function CreditsPopup({ isOpen, onClose }: CreditsPopupProps) {
         </button>
 
         {/* Scrollable Content */}
-        <div className="overflow-y-auto max-h-[90vh] md:max-h-[85vh]">
+        <div className="h-full md:h-auto overflow-y-auto">
           <div className="p-4 md:p-8">
             <h2 className="text-xl md:text-3xl font-bold mb-6 bg-gradient-to-r from-white to-pink-500 bg-clip-text text-transparent">
               Add Credits
@@ -105,17 +108,20 @@ export function CreditsPopup({ isOpen, onClose }: CreditsPopupProps) {
               </div>
             </div>
 
-            <button
-              onClick={handlePurchase}
-              disabled={!selectedOption}
-              className={`w-full py-3 md:py-4 px-6 rounded-xl font-semibold transition-all duration-300 ${
-                selectedOption
-                  ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white hover:from-pink-600 hover:to-rose-600 hover:scale-[1.02] hover:shadow-lg hover:shadow-pink-500/25'
-                  : 'bg-gray-800 text-gray-400 cursor-not-allowed'
-              }`}
-            >
-              {selectedOption ? 'Purchase Now' : 'Select a Plan'}
-            </button>
+            {/* Purchase Button - Fixed at bottom on mobile */}
+            <div className="sticky bottom-0 left-0 right-0 pb-4 pt-2 bg-gray-900">
+              <button
+                onClick={handlePurchase}
+                disabled={!selectedOption}
+                className={`w-full py-3 md:py-4 px-6 rounded-xl font-semibold transition-all duration-300 ${
+                  selectedOption
+                    ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white hover:from-pink-600 hover:to-rose-600 hover:scale-[1.02] hover:shadow-lg hover:shadow-pink-500/25'
+                    : 'bg-gray-800 text-gray-400 cursor-not-allowed'
+                }`}
+              >
+                {selectedOption ? 'Purchase Now' : 'Select a Plan'}
+              </button>
+            </div>
           </div>
         </div>
       </div>
