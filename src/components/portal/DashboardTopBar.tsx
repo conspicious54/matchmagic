@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { CreditCard, Plus, Settings, Menu } from 'lucide-react';
-import { useAuth } from '../auth/AuthContext';
+import { useAuth } from '../../components/auth/AuthContext';
 import { CreditsPopup } from './CreditsPopup';
 import { PlanPopup } from './PlanPopup';
 

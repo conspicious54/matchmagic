@@ -67,7 +67,6 @@ function DashboardPage() {
   }, [navigate, user]);
 
   const handleUsePrompt = (photo: ExamplePhoto, index: number) => {
-    // Update the global prompt state with all fields
     setGlobalPrompt(
       photo.prompt,
       photo.style,
@@ -76,7 +75,6 @@ function DashboardPage() {
       photo.cameraType
     );
     
-    // Show copied indicator
     setCopiedPrompt(index);
     setTimeout(() => setCopiedPrompt(null), 2000);
   };
@@ -146,7 +144,6 @@ function DashboardPage() {
                 key={pack.name}
                 className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-xl overflow-hidden border border-gray-700/50 hover:border-pink-500/30 transition-all duration-300 group"
               >
-                {/* Background Image */}
                 <div className="relative h-48">
                   <img 
                     src={pack.image} 
@@ -160,7 +157,6 @@ function DashboardPage() {
                   </div>
                 </div>
 
-                {/* Content */}
                 <div className="p-4">
                   <div className="space-y-2 mb-4">
                     {pack.includes.slice(0, 3).map((feature, index) => (
@@ -210,44 +206,34 @@ function DashboardPage() {
           Welcome back{user?.user_metadata?.full_name ? `, ${user.user_metadata.full_name}` : ''}!
         </h1>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {/* Recent Activity Card */}
-          <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-xl p-6 border border-gray-700/50 hover:border-pink-500/30 transition-all duration-300">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-white">Recent Activity</h2>
-              <Clock className="w-5 h-5 text-pink-500" />
+        <div className="grid grid-cols-3 md:grid-cols-3 gap-2 md:gap-6 mb-8">
+          <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-lg p-3 md:p-6 border border-gray-700/50 hover:border-pink-500/30 transition-all duration-300">
+            <div className="flex items-center justify-between mb-2 md:mb-4">
+              <h2 className="text-sm md:text-xl font-semibold text-white">Recent</h2>
+              <Clock className="w-4 h-4 md:w-5 md:h-5 text-pink-500" />
             </div>
-            <div className="text-gray-300">
-              No recent activity to show
+            <div className="text-xs md:text-base text-gray-300">
+              No activity
             </div>
           </div>
           
-          {/* Credits Card */}
-          <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-xl p-6 border border-gray-700/50 hover:border-pink-500/30 transition-all duration-300">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-white">Credits</h2>
-              <Camera className="w-5 h-5 text-pink-500" />
+          <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-lg p-3 md:p-6 border border-gray-700/50 hover:border-pink-500/30 transition-all duration-300">
+            <div className="flex items-center justify-between mb-2 md:mb-4">
+              <h2 className="text-sm md:text-xl font-semibold text-white">Credits</h2>
+              <Camera className="w-4 h-4 md:w-5 md:h-5 text-pink-500" />
             </div>
-            <div className="text-3xl font-bold text-white mb-2">100</div>
-            <div className="text-gray-300">
-              Available credits
-            </div>
+            <div className="text-lg md:text-3xl font-bold text-white">100</div>
           </div>
 
-          {/* Generated Photos Card */}
-          <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-xl p-6 border border-gray-700/50 hover:border-pink-500/30 transition-all duration-300">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-white">Generated Photos</h2>
-              <Image className="w-5 h-5 text-pink-500" />
+          <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-lg p-3 md:p-6 border border-gray-700/50 hover:border-pink-500/30 transition-all duration-300">
+            <div className="flex items-center justify-between mb-2 md:mb-4">
+              <h2 className="text-sm md:text-xl font-semibold text-white">Photos</h2>
+              <Image className="w-4 h-4 md:w-5 md:h-5 text-pink-500" />
             </div>
-            <div className="text-3xl font-bold text-white mb-2">0</div>
-            <div className="text-gray-300">
-              Total photos generated
-            </div>
+            <div className="text-lg md:text-3xl font-bold text-white">0</div>
           </div>
         </div>
 
-        {/* Enhanced Tabs Section */}
         <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-xl border border-gray-700/50">
           <div className="border-b border-gray-700/50">
             <div className="flex space-x-1 p-4">

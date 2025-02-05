@@ -28,11 +28,13 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           {children}
         </main>
 
-        {/* Mobile Sidebar Overlay */}
+        {/* Mobile Sidebar Overlay - Centered Content */}
         {isMobileMenuOpen && (
           <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setIsMobileMenuOpen(false)}>
-            <div className="absolute right-0 top-0 bottom-0 w-80 bg-[#0A0A0F] overflow-y-auto" onClick={e => e.stopPropagation()}>
-              <ModelSidebar />
+            <div className="absolute inset-0 flex items-center justify-center p-4" onClick={e => e.stopPropagation()}>
+              <div className="w-full max-w-md bg-[#0A0A0F] rounded-xl overflow-hidden">
+                <ModelSidebar />
+              </div>
             </div>
           </div>
         )}
