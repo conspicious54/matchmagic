@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Heart } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 
 export function Footer() {
   return (
@@ -11,10 +11,10 @@ export function Footer() {
           <div className="flex flex-col space-y-4">
             <div className="flex items-center space-x-2">
               <div className="relative">
-                <Heart className="w-5 h-5 text-pink-500" />
+                <Sparkles className="w-5 h-5 text-pink-500" />
                 <div className="absolute inset-0 bg-pink-500/20 blur-lg"></div>
               </div>
-              <span className="text-gray-400 hover:text-white transition-colors">PhotoMatch AI</span>
+              <span className="text-gray-400 hover:text-white transition-colors">MatchMagic.io</span>
             </div>
             <p className="text-gray-500">© 2024 All rights reserved</p>
           </div>
@@ -41,8 +41,8 @@ export function Footer() {
             <h3 className="text-lg font-semibold text-white">Contact</h3>
             <p className="text-gray-400">
               Questions? Email us at:<br />
-              <a href="mailto:support@photomatch.ai" className="text-pink-500 hover:text-pink-400 transition-colors">
-                support@photomatch.ai
+              <a href="mailto:support@matchmagic.io" className="text-pink-500 hover:text-pink-400 transition-colors">
+                support@matchmagic.io
               </a>
             </p>
           </div>

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Upload, ChevronRight, ChevronLeft, Loader2, AlertCircle, Camera, Sparkles, User2, Info } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../components/auth/AuthContext';
+import { uploadUserPhoto, deleteUserPhoto } from '../lib/storage';
 
 interface UserProfile {
   name: string;
@@ -15,11 +16,12 @@ interface UserProfile {
 }
 
 interface TrainingImage {
-  id: number;
+  id: string;
   file: File;
   previewUrl: string;
 }
 
+const MAX_PHOTOS = 15;
 const MINIMUM_PHOTOS = 10;
 
 const ETHNICITIES = [
@@ -67,24 +69,63 @@ export default function CreateModelPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
-    if (!files) return;
+    if (!files || !user) return;
 
-    const newImages: TrainingImage[] = Array.from(files).map((file, index) => ({
-      id: Date.now() + index,
-      file,
-      previewUrl: URL.createObjectURL(file)
-    }));
+    // Check if adding these files would exceed the limit
+    if (images.length + files.length > MAX_PHOTOS) {
+      setError(`You can only upload up to ${MAX_PHOTOS} photos. Please remove some photos first.`);
+      return;
+    }
 
-    setImages(prev => [...prev, ...newImages]);
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // Create preview images first
+      const newImages: TrainingImage[] = Array.from(files).map((file) => ({
+        id: Date.now() + Math.random().toString(),
+        file,
+        previewUrl: URL.createObjectURL(file)
+      }));
+
+      setImages(prev => [...prev, ...newImages]);
+
+      // Upload each image to Supabase
+      for (const image of newImages) {
+        await uploadUserPhoto(user.id, image.file);
+      }
+    } catch (error) {
+      console.error('Error uploading photos:', error);
+      setError('Failed to upload one or more photos. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const removeImage = (id: number) => {
-    setImages(prev => {
-      const filtered = prev.filter(img => img.id !== id);
-      return filtered;
-    });
+  const removeImage = async (id: string) => {
+    if (!user) return;
+
+    const imageToRemove = images.find(img => img.id === id);
+    if (!imageToRemove) return;
+
+    setIsLoading(true);
+    try {
+      // Delete from Supabase
+      await deleteUserPhoto(user.id, id);
+      
+      // Remove from local state
+      setImages(prev => prev.filter(img => img.id !== id));
+      
+      // Revoke the object URL to prevent memory leaks
+      URL.revokeObjectURL(imageToRemove.previewUrl);
+    } catch (error) {
+      console.error('Error removing photo:', error);
+      setError('Failed to remove photo. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSubmit = async () => {
@@ -364,7 +405,7 @@ export default function CreateModelPage() {
               <div className="space-y-6 animate-[fadeIn_0.5s_ease-in-out]">
                 <h2 className="text-2xl font-bold">Upload Your Photos</h2>
                 <p className="text-gray-400">
-                  Upload at least {MINIMUM_PHOTOS} clear photos of yourself. Include different angles and expressions.
+                  Upload {MINIMUM_PHOTOS}-{MAX_PHOTOS} clear photos of yourself. Include different angles and expressions.
                 </p>
 
                 <div className="border-2 border-dashed border-gray-700 rounded-lg p-8 text-center transition-all duration-300 hover:border-pink-500/50 group">
@@ -375,17 +416,22 @@ export default function CreateModelPage() {
                     onChange={handleImageUpload}
                     className="hidden"
                     id="photo-upload"
+                    disabled={images.length >= MAX_PHOTOS || isLoading}
                   />
                   <label
                     htmlFor="photo-upload"
-                    className="cursor-pointer flex flex-col items-center"
+                    className={`cursor-pointer flex flex-col items-center ${
+                      images.length >= MAX_PHOTOS ? 'opacity-50' : ''
+                    }`}
                   >
                     <Upload className="w-12 h-12 text-gray-500 mb-4 group-hover:text-pink-500 transition-colors" />
                     <span className="text-gray-400 group-hover:text-white transition-colors">
-                      Click to upload or drag and drop
+                      {images.length >= MAX_PHOTOS 
+                        ? `Maximum ${MAX_PHOTOS} photos reached`
+                        : 'Click to upload or drag and drop'}
                     </span>
                     <span className="text-sm text-gray-500">
-                      PNG, JPG up to 10MB each
+                      PNG, JPG up to 10MB each ({images.length}/{MAX_PHOTOS} photos)
                     </span>
                   </label>
                 </div>
@@ -401,7 +447,8 @@ export default function CreateModelPage() {
                         />
                         <button
                           onClick={() => removeImage(image.id)}
-                          className="absolute top-2 right-2 bg-red-500/80 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-red-600"
+                          disabled={isLoading}
+                          className="absolute top-2 right-2 bg-red-500/80 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           ×
                         </button>

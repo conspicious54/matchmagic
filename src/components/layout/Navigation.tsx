@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Heart, ChevronRight, LogOut } from 'lucide-react';
+import { Sparkles, ChevronRight, LogOut } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
 import { GoogleButton } from '../auth/GoogleButton';
 
@@ -13,7 +13,7 @@ export function Navigation() {
           <div className="flex items-center space-x-2 md:space-x-3">
             <Link to="/" className="flex items-center space-x-2 md:space-x-3">
               <div className="relative">
-                <Heart className="w-4 h-4 md:w-6 md:h-6 text-pink-500 animate-pulse" />
+                <Sparkles className="w-4 h-4 md:w-6 md:h-6 text-pink-500 animate-pulse" />
                 <div className="absolute inset-0 bg-pink-500/20 blur-xl -z-10"></div>
               </div>
               <span className="text-base md:text-2xl font-bold tracking-tight bg-gradient-to-r from-white via-pink-100 to-pink-500 bg-clip-text text-transparent" style={{ 
@@ -21,7 +21,7 @@ export function Navigation() {
                 letterSpacing: '-0.02em',
                 textShadow: '0 0 30px rgba(236, 72, 153, 0.3)'
               }}>
-                PhotoMatch AI
+                MatchMagic.io
               </span>
             </Link>
           </div>
