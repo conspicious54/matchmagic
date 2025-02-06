@@ -76,7 +76,6 @@ export default function CreateModelPage() {
     const files = event.target.files;
     if (!files || !user) return;
 
-    // Check if adding these files would exceed the limit
     if (images.length + files.length > MAX_PHOTOS) {
       setError(`You can only upload up to ${MAX_PHOTOS} photos. Please remove some photos first.`);
       return;
@@ -84,7 +83,6 @@ export default function CreateModelPage() {
 
     setError(null);
 
-    // Create preview images and add to state with pending status
     const newImages: TrainingImage[] = Array.from(files).map((file) => ({
       id: Date.now() + Math.random().toString(),
       file,
@@ -94,28 +92,23 @@ export default function CreateModelPage() {
 
     setImages(prev => [...prev, ...newImages]);
 
-    // Upload each image
     for (const image of newImages) {
       try {
-        // Update status to uploading
         setImages(prev => prev.map(img => 
           img.id === image.id ? { ...img, uploadStatus: 'uploading' } : img
         ));
 
-        // Upload to Supabase
         const { path, error } = await uploadTrainingPhoto(user.id, image.file);
         
         if (error) {
           throw new Error(error);
         }
 
-        // Update status to success
         setImages(prev => prev.map(img => 
           img.id === image.id ? { ...img, uploadStatus: 'success', path } : img
         ));
       } catch (error) {
         console.error('Error uploading photo:', error);
-        // Update status to error
         setImages(prev => prev.map(img => 
           img.id === image.id ? { 
             ...img, 
@@ -138,10 +131,8 @@ export default function CreateModelPage() {
         if (error) throw new Error(error);
       }
       
-      // Remove from local state
       setImages(prev => prev.filter(img => img.id !== id));
       
-      // Revoke the object URL to prevent memory leaks
       URL.revokeObjectURL(imageToRemove.previewUrl);
     } catch (error) {
       console.error('Error removing photo:', error);
@@ -152,7 +143,6 @@ export default function CreateModelPage() {
   };
 
   const handleSubmit = async () => {
-    // Validate again before final submission
     if (!profile.consentAgreed) {
       setError('Please agree to the terms and conditions to continue');
       return;
@@ -171,7 +161,6 @@ export default function CreateModelPage() {
       setIsLoading(true);
       setError(null);
 
-      // First check if profile exists
       const { data: existingProfile } = await supabase
         .from('user_profiles')
         .select('id')
@@ -186,19 +175,17 @@ export default function CreateModelPage() {
         eye_color: profile.eyeColor,
         ethnicity: profile.ethnicity,
         hair_status: profile.hairStatus,
-        plan_status: 'inactive' // Always set as inactive initially
+        plan_status: 'inactive'
       };
 
       let profileResult;
       
       if (existingProfile) {
-        // Update existing profile
         profileResult = await supabase
           .from('user_profiles')
           .update(profileData)
           .eq('user_id', user.id);
       } else {
-        // Insert new profile
         profileResult = await supabase
           .from('user_profiles')
           .insert([profileData]);
@@ -208,7 +195,6 @@ export default function CreateModelPage() {
         throw profileResult.error;
       }
 
-      // Navigate to the generating page which will then redirect to pricing/subscribe
       navigate('/generating');
     } catch (err) {
       console.error('Error saving profile:', err);
@@ -261,7 +247,6 @@ export default function CreateModelPage() {
 
   return (
     <div className="min-h-screen bg-[#0A0A0F] text-gray-100">
-      {/* Enhanced background with animated gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-pink-500/5 via-purple-500/5 to-blue-500/5 animate-gradient"></div>
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(255,192,203,0.1),transparent_50%)]"></div>
       
@@ -280,7 +265,6 @@ export default function CreateModelPage() {
         </nav>
 
         <div className="max-w-2xl mx-auto">
-          {/* Enhanced Progress Steps */}
           <div className="flex items-center justify-between mb-12">
             {[1, 2, 3].map((s) => (
               <div
@@ -314,7 +298,6 @@ export default function CreateModelPage() {
             ))}
           </div>
 
-          {/* Enhanced Error Message */}
           {error && (
             <div className="mb-6 p-4 bg-red-500/20 border border-red-500/50 rounded-lg flex items-center space-x-2 text-red-300 animate-[shake_0.5s_ease-in-out] backdrop-blur-sm">
               <AlertCircle className="w-5 h-5 flex-shrink-0" />
@@ -322,9 +305,7 @@ export default function CreateModelPage() {
             </div>
           )}
 
-          {/* Enhanced Card Container */}
           <div className="bg-gray-800/30 backdrop-blur-xl rounded-2xl p-8 border border-gray-700/50 shadow-xl transition-all duration-500 hover:shadow-pink-500/5">
-            {/* Step 1: Basic Info */}
             {step === 1 && (
               <div className="space-y-6 animate-[fadeIn_0.5s_ease-in-out]">
                 <div className="flex items-center justify-between">
@@ -380,7 +361,6 @@ export default function CreateModelPage() {
               </div>
             )}
 
-            {/* Step 2: Physical Characteristics */}
             {step === 2 && (
               <div className="space-y-6 animate-[fadeIn_0.5s_ease-in-out]">
                 <h2 className="text-2xl font-bold">Physical Characteristics</h2>
@@ -435,7 +415,6 @@ export default function CreateModelPage() {
               </div>
             )}
 
-            {/* Step 3: Photo Upload */}
             {step === 3 && (
               <div className="space-y-6 animate-[fadeIn_0.5s_ease-in-out]">
                 <h2 className="text-2xl font-bold">Upload Your Photos</h2>
@@ -487,7 +466,6 @@ export default function CreateModelPage() {
                         >
                           ×
                         </button>
-                        {/* Upload Status Indicator */}
                         <div className={`absolute bottom-2 right-2 px-2 py-1 rounded text-xs ${
                           image.uploadStatus === 'success' ? 'bg-green-500/80' :
                           image.uploadStatus === 'error' ? 'bg-red-500/80' :
@@ -519,7 +497,6 @@ export default function CreateModelPage() {
                     </span>
                   </label>
                   
-                  {/* Photo count indicator */}
                   <div className="flex items-center justify-between text-sm">
                     <span className={`${
                       images.length < MINIMUM_PHOTOS ? 'text-red-400' : 'text-green-400'
@@ -534,7 +511,6 @@ export default function CreateModelPage() {
               </div>
             )}
 
-            {/* Enhanced Navigation Buttons */}
             <div className="flex justify-between mt-8">
               {step > 1 && (
                 <button
