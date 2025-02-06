@@ -8,6 +8,8 @@ import DashboardPage from './pages/DashboardPage';
 import GeneratingPage from './pages/GeneratingPage';
 import TermsPage from './pages/TermsPage';
 import PrivacyPage from './pages/PrivacyPage';
+import AddCreditsPage from './pages/AddCreditsPage';
+import ManagePlanPage from './pages/ManagePlanPage';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 
 function App() {
@@ -34,6 +36,16 @@ function App() {
       <Route path="/dashboard" element={
         <ProtectedRoute>
           <DashboardPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/add-credits" element={
+        <ProtectedRoute>
+          <AddCreditsPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/manage-plan" element={
+        <ProtectedRoute>
+          <ManagePlanPage />
         </ProtectedRoute>
       } />
       <Route path="/terms" element={<TermsPage />} />

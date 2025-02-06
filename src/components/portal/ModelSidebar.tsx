@@ -150,13 +150,13 @@ export function ModelSidebar() {
   return (
     <aside className="w-full md:w-80 bg-gray-900/50 border-r border-gray-800/50 backdrop-blur-xl h-[calc(100vh-4rem)] overflow-hidden flex flex-col fixed md:sticky top-16">
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto px-4 md:px-6 pt-6 pb-40">
-        <div className="max-w-sm mx-auto md:max-w-none md:mx-0 space-y-8">
+      <div className="flex-1 overflow-y-auto px-4 md:px-6 py-6">
+        <div className="space-y-8">
           {/* Model Status */}
           <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-lg p-4 border border-gray-700/50">
             {modelStatus.isLoading ? (
               <div className="space-y-3">
-                <div className="flex items-center space-x-3 justify-center md:justify-start">
+                <div className="flex items-center space-x-3">
                   <div className="animate-spin rounded-full h-4 w-4 border-2 border-pink-500 border-t-transparent"></div>
                   <span className="text-gray-300">Loading your model...</span>
                 </div>
@@ -166,12 +166,12 @@ export function ModelSidebar() {
                 </div>
               </div>
             ) : modelStatus.name ? (
-              <div className="text-center md:text-left">
+              <div>
                 <h3 className="font-semibold text-lg text-white">{modelStatus.name}</h3>
                 <p className="text-sm text-gray-300">Your model is ready</p>
               </div>
             ) : (
-              <div className="text-gray-300 text-sm text-center md:text-left">
+              <div className="text-gray-300 text-sm">
                 Your model is still in the works. This usually takes ~45 minutes, but can take up to 4-5 hours for best results.
               </div>
             )}
@@ -337,7 +337,7 @@ export function ModelSidebar() {
       </div>
 
       {/* Fixed Bottom Controls */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 bg-gradient-to-t from-gray-900 via-gray-900/95 to-transparent">
+      <div className="flex-shrink-0 p-4 md:p-6 bg-gradient-to-t from-gray-900 via-gray-900/95 to-transparent">
         {/* Photo Count Selector */}
         <div className="mb-4">
           <div className="flex items-center justify-between mb-2">
