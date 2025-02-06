@@ -24,9 +24,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         </div>
 
         {/* Main Content */}
-        <main className="flex-1 p-4 md:p-8 pb-24 md:pb-8 md:ml-80">
-          {children}
-        </main>
+        <div className="flex-1 md:ml-80">
+          <div className="max-w-[1400px] mx-auto p-4 md:p-8 pb-24 md:pb-8">
+            {children}
+          </div>
+        </div>
       </div>
 
       {/* Mobile Bottom Navigation */}
