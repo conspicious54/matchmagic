@@ -42,6 +42,8 @@ interface ModelStatus {
   isLoading: boolean;
   name: string | null;
   error: string | null;
+  progress: number | null;
+  message: string | null;
 }
 
 const STYLE_OPTIONS = [
@@ -111,7 +113,9 @@ export function ModelSidebar() {
   const [modelStatus, setModelStatus] = useState<ModelStatus>({
     isLoading: true,
     name: null,
-    error: null
+    error: null,
+    progress: null,
+    message: null
   });
   const [prompt, setPrompt] = useState('');
   const [accuracy, setAccuracy] = useState(80);
@@ -136,6 +140,65 @@ export function ModelSidebar() {
     return () => window.removeEventListener('promptUpdate', handlePromptUpdate as EventListener);
   }, []);
 
+  // Add effect to fetch job progress
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchProgress = async () => {
+      const { data, error } = await supabase
+        .from('jobs')
+        .select('status, output')
+        .eq('user_id', user.id)
+        .eq('type', 'model_training')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (error) {
+        console.error('Error fetching job progress:', error);
+        return;
+      }
+
+      if (data) {
+        setModelStatus(prev => ({
+          ...prev,
+          progress: data.output?.progress || null,
+          message: data.output?.message || null,
+          isLoading: data.status === 'processing'
+        }));
+      }
+    };
+
+    // Initial fetch
+    fetchProgress();
+
+    // Set up real-time subscription
+    const subscription = supabase
+      .channel('jobs_progress')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'jobs',
+          filter: `user_id=eq.${user.id} AND type=eq.model_training`
+        },
+        (payload) => {
+          setModelStatus(prev => ({
+            ...prev,
+            progress: payload.new.output?.progress || null,
+            message: payload.new.output?.message || null,
+            isLoading: payload.new.status === 'processing'
+          }));
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [user]);
+
   // Tooltip content
   const tooltips = {
     prompt: "Describe what you want to create. Be specific about the setting, lighting, and mood you want to achieve.",
@@ -156,9 +219,20 @@ export function ModelSidebar() {
           <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-lg p-4 border border-gray-700/50">
             {modelStatus.isLoading ? (
               <div className="space-y-3">
+                {modelStatus.progress !== null && (
+                  <div className="w-full bg-gray-800 rounded-full h-1.5 mb-3">
+                    <div 
+                      className="bg-gradient-to-r from-pink-500 to-rose-500 h-1.5 rounded-full transition-all duration-300"
+                      style={{ width: `${modelStatus.progress}%` }}
+                    />
+                  </div>
+                )}
                 <div className="flex items-center space-x-3">
                   <div className="animate-spin rounded-full h-4 w-4 border-2 border-pink-500 border-t-transparent"></div>
-                  <span className="text-gray-300">Loading your model...</span>
+                  <span className="text-gray-300">
+                    {modelStatus.message || 'Loading your model...'} 
+                    {modelStatus.progress !== null && ` (${Math.round(modelStatus.progress)}%)`}
+                  </span>
                 </div>
                 <div className="flex items-start space-x-2 text-xs text-gray-400 bg-gray-800/50 p-2 rounded">
                   <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
