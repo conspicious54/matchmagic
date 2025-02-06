@@ -22,7 +22,6 @@ function AuthCallbackPage() {
       try {
         console.log('Checking profile for user:', user.id);
         
-        // Get profile with a simple select - no maybeSingle or not conditions
         const { data: profiles, error } = await supabase
           .from('user_profiles')
           .select('name, plan_status')
@@ -33,10 +32,7 @@ function AuthCallbackPage() {
           throw error;
         }
 
-        // Get the first profile if it exists
         const profile = profiles?.[0];
-
-        // Log the profile data for debugging
         console.log('Profile data:', profile);
 
         if (profile?.name) {
@@ -50,13 +46,13 @@ function AuthCallbackPage() {
             navigate('/pricing/subscribe', { replace: true });
           }
         } else {
-          console.log('No profile or no name, going to create');
-          navigate('/create', { replace: true });
+          console.log('No profile or no name, going to initial setup');
+          navigate('/create-model', { replace: true });
         }
       } catch (error) {
         console.error('Error during auth callback:', error);
         // On error, safest to send to create page
-        navigate('/create', { replace: true });
+        navigate('/create-model', { replace: true });
       }
     };
 
