@@ -10,15 +10,21 @@ import TermsPage from './pages/TermsPage';
 import PrivacyPage from './pages/PrivacyPage';
 import AddCreditsPage from './pages/AddCreditsPage';
 import ManagePlanPage from './pages/ManagePlanPage';
+import CreatePage from './pages/CreatePage';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
-      <Route path="/create" element={
+      <Route path="/create-model" element={
         <ProtectedRoute>
           <CreateModelPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/create" element={
+        <ProtectedRoute>
+          <CreatePage />
         </ProtectedRoute>
       } />
       <Route path="/generating" element={

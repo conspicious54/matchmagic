@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { HelpCircle, Camera, Heart, Info, Minus, Plus } from 'lucide-react';
-import { useAuth } from '../../components/auth/AuthContext';
+import { useAuth } from '../auth/AuthContext';
 import { supabase } from '../../lib/supabase';
 
 // Create a custom event for prompt updates
@@ -148,199 +148,197 @@ export function ModelSidebar() {
   };
 
   return (
-    <aside className="w-full md:w-80 bg-gray-900/50 border-r border-gray-800/50 backdrop-blur-xl h-[calc(100vh-4rem)] overflow-hidden flex flex-col fixed md:sticky top-16">
+    <aside className="w-80 bg-gray-900/50 border-r border-gray-800/50 backdrop-blur-xl fixed left-0 top-16 bottom-0 flex flex-col">
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto px-4 md:px-6 py-6">
+      <div className="flex-1 overflow-y-auto p-6 space-y-8">
+        {/* Model Status */}
+        <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-lg p-4 border border-gray-700/50">
+          {modelStatus.isLoading ? (
+            <div className="space-y-3">
+              <div className="flex items-center space-x-3">
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-pink-500 border-t-transparent"></div>
+                <span className="text-gray-300">Loading your model...</span>
+              </div>
+              <div className="flex items-start space-x-2 text-xs text-gray-400 bg-gray-800/50 p-2 rounded">
+                <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <p>Model training can take 4-5 hours. We'll notify you when it's ready!</p>
+              </div>
+            </div>
+          ) : modelStatus.name ? (
+            <div>
+              <h3 className="font-semibold text-lg text-white">{modelStatus.name}</h3>
+              <p className="text-sm text-gray-300">Your model is ready</p>
+            </div>
+          ) : (
+            <div className="text-gray-300 text-sm">
+              Your model is still in the works. This usually takes ~45 minutes, but can take up to 4-5 hours for best results.
+            </div>
+          )}
+        </div>
+
+        {/* Controls Section */}
         <div className="space-y-8">
-          {/* Model Status */}
-          <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-lg p-4 border border-gray-700/50">
-            {modelStatus.isLoading ? (
-              <div className="space-y-3">
-                <div className="flex items-center space-x-3">
-                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-pink-500 border-t-transparent"></div>
-                  <span className="text-gray-300">Loading your model...</span>
-                </div>
-                <div className="flex items-start space-x-2 text-xs text-gray-400 bg-gray-800/50 p-2 rounded">
-                  <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                  <p>Model training can take 4-5 hours. We'll notify you when it's ready!</p>
+          {/* Prompt Input */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium text-gray-200">Prompt</label>
+              <div className="group relative">
+                <HelpCircle className="w-4 h-4 text-gray-400 hover:text-white cursor-help" />
+                <div className="absolute bottom-full right-0 mb-2 w-64 p-2 bg-gray-800 rounded-lg text-xs text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                  {tooltips.prompt}
                 </div>
               </div>
-            ) : modelStatus.name ? (
-              <div>
-                <h3 className="font-semibold text-lg text-white">{modelStatus.name}</h3>
-                <p className="text-sm text-gray-300">Your model is ready</p>
-              </div>
-            ) : (
-              <div className="text-gray-300 text-sm">
-                Your model is still in the works. This usually takes ~45 minutes, but can take up to 4-5 hours for best results.
-              </div>
-            )}
+            </div>
+            <textarea
+              value={prompt}
+              onChange={(e) => {
+                setPrompt(e.target.value);
+                setGlobalPrompt(e.target.value, style, cameraAngle, photoCount, cameraType);
+              }}
+              className="w-full h-24 px-3 py-2 bg-gray-800/50 rounded-lg border border-gray-700 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 transition-all text-white placeholder-gray-500"
+              placeholder="Describe your photo..."
+            />
           </div>
 
-          {/* Controls Section */}
-          <div className="space-y-8">
-            {/* Prompt Input */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium text-gray-200">Prompt</label>
-                <div className="group relative">
-                  <HelpCircle className="w-4 h-4 text-gray-400 hover:text-white cursor-help" />
-                  <div className="absolute bottom-full right-0 mb-2 w-64 p-2 bg-gray-800 rounded-lg text-xs text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                    {tooltips.prompt}
-                  </div>
+          {/* Accuracy Slider */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium text-gray-200">Accuracy</label>
+              <div className="group relative">
+                <HelpCircle className="w-4 h-4 text-gray-400 hover:text-white cursor-help" />
+                <div className="absolute bottom-full right-0 mb-2 w-64 p-2 bg-gray-800 rounded-lg text-xs text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                  {tooltips.accuracy}
                 </div>
               </div>
-              <textarea
-                value={prompt}
-                onChange={(e) => {
-                  setPrompt(e.target.value);
-                  setGlobalPrompt(e.target.value, style, cameraAngle, photoCount, cameraType);
-                }}
-                className="w-full h-24 px-3 py-2 bg-gray-800/50 rounded-lg border border-gray-700 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 transition-all text-white placeholder-gray-500"
-                placeholder="Describe your photo..."
-              />
             </div>
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 rounded-lg blur"></div>
+              <div className="relative bg-gray-800/50 rounded-lg p-4 border border-gray-700/50">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-gray-400">Creative</span>
+                  <span className="text-sm font-medium text-white">{accuracy}%</span>
+                  <span className="text-sm text-gray-400">Accurate</span>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={accuracy}
+                  onChange={(e) => setAccuracy(parseInt(e.target.value))}
+                  className="w-full h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-pink-500 [&::-webkit-slider-thumb]:shadow-lg"
+                />
+              </div>
+            </div>
+          </div>
 
-            {/* Accuracy Slider */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium text-gray-200">Accuracy</label>
-                <div className="group relative">
-                  <HelpCircle className="w-4 h-4 text-gray-400 hover:text-white cursor-help" />
-                  <div className="absolute bottom-full right-0 mb-2 w-64 p-2 bg-gray-800 rounded-lg text-xs text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                    {tooltips.accuracy}
-                  </div>
-                </div>
-              </div>
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 rounded-lg blur"></div>
-                <div className="relative bg-gray-800/50 rounded-lg p-4 border border-gray-700/50">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-gray-400">Creative</span>
-                    <span className="text-sm font-medium text-white">{accuracy}%</span>
-                    <span className="text-sm text-gray-400">Accurate</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={accuracy}
-                    onChange={(e) => setAccuracy(parseInt(e.target.value))}
-                    className="w-full h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-pink-500 [&::-webkit-slider-thumb]:shadow-lg"
-                  />
+          {/* Style Dropdown */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium text-gray-200">Style/Film Type</label>
+              <div className="group relative">
+                <HelpCircle className="w-4 h-4 text-gray-400 hover:text-white cursor-help" />
+                <div className="absolute bottom-full right-0 mb-2 w-64 p-2 bg-gray-800 rounded-lg text-xs text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                  {tooltips.style}
                 </div>
               </div>
             </div>
+            <select
+              value={style}
+              onChange={(e) => {
+                setStyle(e.target.value);
+                setGlobalPrompt(prompt, e.target.value, cameraAngle, photoCount, cameraType);
+              }}
+              className="w-full px-3 py-2 bg-gray-800/50 rounded-lg border border-gray-700 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 transition-all text-white"
+            >
+              <option value="" className="bg-gray-900 text-gray-300">Select style</option>
+              {STYLE_OPTIONS.map((option) => (
+                <option key={option} value={option} className="bg-gray-900 text-white">{option}</option>
+              ))}
+            </select>
+          </div>
 
-            {/* Style Dropdown */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium text-gray-200">Style/Film Type</label>
-                <div className="group relative">
-                  <HelpCircle className="w-4 h-4 text-gray-400 hover:text-white cursor-help" />
-                  <div className="absolute bottom-full right-0 mb-2 w-64 p-2 bg-gray-800 rounded-lg text-xs text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                    {tooltips.style}
-                  </div>
+          {/* Emotion Dropdown */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium text-gray-200">Emotion</label>
+              <div className="group relative">
+                <HelpCircle className="w-4 h-4 text-gray-400 hover:text-white cursor-help" />
+                <div className="absolute bottom-full right-0 mb-2 w-64 p-2 bg-gray-800 rounded-lg text-xs text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                  {tooltips.emotion}
                 </div>
               </div>
-              <select
-                value={style}
-                onChange={(e) => {
-                  setStyle(e.target.value);
-                  setGlobalPrompt(prompt, e.target.value, cameraAngle, photoCount, cameraType);
-                }}
-                className="w-full px-3 py-2 bg-gray-800/50 rounded-lg border border-gray-700 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 transition-all text-white"
-              >
-                <option value="" className="bg-gray-900 text-gray-300">Select style</option>
-                {STYLE_OPTIONS.map((option) => (
-                  <option key={option} value={option} className="bg-gray-900 text-white">{option}</option>
-                ))}
-              </select>
             </div>
+            <select
+              value={emotion}
+              onChange={(e) => setEmotion(e.target.value)}
+              className="w-full px-3 py-2 bg-gray-800/50 rounded-lg border border-gray-700 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 transition-all text-white"
+            >
+              <option value="" className="bg-gray-900 text-gray-300">Select emotion</option>
+              {EMOTION_OPTIONS.map((option) => (
+                <option key={option} value={option} className="bg-gray-900 text-white">{option}</option>
+              ))}
+            </select>
+          </div>
 
-            {/* Emotion Dropdown */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium text-gray-200">Emotion</label>
-                <div className="group relative">
-                  <HelpCircle className="w-4 h-4 text-gray-400 hover:text-white cursor-help" />
-                  <div className="absolute bottom-full right-0 mb-2 w-64 p-2 bg-gray-800 rounded-lg text-xs text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                    {tooltips.emotion}
-                  </div>
+          {/* Camera Angle Dropdown */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium text-gray-200">Camera Angle</label>
+              <div className="group relative">
+                <HelpCircle className="w-4 h-4 text-gray-400 hover:text-white cursor-help" />
+                <div className="absolute bottom-full right-0 mb-2 w-64 p-2 bg-gray-800 rounded-lg text-xs text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                  {tooltips.cameraAngle}
                 </div>
               </div>
-              <select
-                value={emotion}
-                onChange={(e) => setEmotion(e.target.value)}
-                className="w-full px-3 py-2 bg-gray-800/50 rounded-lg border border-gray-700 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 transition-all text-white"
-              >
-                <option value="" className="bg-gray-900 text-gray-300">Select emotion</option>
-                {EMOTION_OPTIONS.map((option) => (
-                  <option key={option} value={option} className="bg-gray-900 text-white">{option}</option>
-                ))}
-              </select>
             </div>
+            <select
+              value={cameraAngle}
+              onChange={(e) => {
+                setCameraAngle(e.target.value);
+                setGlobalPrompt(prompt, style, e.target.value, photoCount, cameraType);
+              }}
+              className="w-full px-3 py-2 bg-gray-800/50 rounded-lg border border-gray-700 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 transition-all text-white"
+            >
+              <option value="" className="bg-gray-900 text-gray-300">Select angle</option>
+              {CAMERA_ANGLE_OPTIONS.map((option) => (
+                <option key={option} value={option} className="bg-gray-900 text-white">{option}</option>
+              ))}
+            </select>
+          </div>
 
-            {/* Camera Angle Dropdown */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium text-gray-200">Camera Angle</label>
-                <div className="group relative">
-                  <HelpCircle className="w-4 h-4 text-gray-400 hover:text-white cursor-help" />
-                  <div className="absolute bottom-full right-0 mb-2 w-64 p-2 bg-gray-800 rounded-lg text-xs text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                    {tooltips.cameraAngle}
-                  </div>
+          {/* Camera Type Dropdown */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium text-gray-200">Camera Type</label>
+              <div className="group relative">
+                <HelpCircle className="w-4 h-4 text-gray-400 hover:text-white cursor-help" />
+                <div className="absolute bottom-full right-0 mb-2 w-64 p-2 bg-gray-800 rounded-lg text-xs text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                  {tooltips.cameraType}
                 </div>
               </div>
-              <select
-                value={cameraAngle}
-                onChange={(e) => {
-                  setCameraAngle(e.target.value);
-                  setGlobalPrompt(prompt, style, e.target.value, photoCount, cameraType);
-                }}
-                className="w-full px-3 py-2 bg-gray-800/50 rounded-lg border border-gray-700 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 transition-all text-white"
-              >
-                <option value="" className="bg-gray-900 text-gray-300">Select angle</option>
-                {CAMERA_ANGLE_OPTIONS.map((option) => (
-                  <option key={option} value={option} className="bg-gray-900 text-white">{option}</option>
-                ))}
-              </select>
             </div>
-
-            {/* Camera Type Dropdown */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium text-gray-200">Camera Type</label>
-                <div className="group relative">
-                  <HelpCircle className="w-4 h-4 text-gray-400 hover:text-white cursor-help" />
-                  <div className="absolute bottom-full right-0 mb-2 w-64 p-2 bg-gray-800 rounded-lg text-xs text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                    {tooltips.cameraType}
-                  </div>
-                </div>
-              </div>
-              <select
-                value={cameraType}
-                onChange={(e) => {
-                  setCameraType(e.target.value);
-                  setGlobalPrompt(prompt, style, cameraAngle, photoCount, e.target.value);
-                }}
-                className="w-full px-3 py-2 bg-gray-800/50 rounded-lg border border-gray-700 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 transition-all text-white"
-              >
-                <option value="" className="bg-gray-900 text-gray-300">Select camera</option>
-                {CAMERA_TYPE_OPTIONS.map((option) => (
-                  <option key={option} value={option} className="bg-gray-900 text-white">{option}</option>
-                ))}
-              </select>
-            </div>
+            <select
+              value={cameraType}
+              onChange={(e) => {
+                setCameraType(e.target.value);
+                setGlobalPrompt(prompt, style, cameraAngle, photoCount, e.target.value);
+              }}
+              className="w-full px-3 py-2 bg-gray-800/50 rounded-lg border border-gray-700 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 transition-all text-white"
+            >
+              <option value="" className="bg-gray-900 text-gray-300">Select camera</option>
+              {CAMERA_TYPE_OPTIONS.map((option) => (
+                <option key={option} value={option} className="bg-gray-900 text-white">{option}</option>
+              ))}
+            </select>
           </div>
         </div>
       </div>
 
-      {/* Fixed Bottom Controls */}
-      <div className="flex-shrink-0 p-4 md:p-6 bg-gradient-to-t from-gray-900 via-gray-900/95 to-transparent">
+      {/* Fixed Bottom Section */}
+      <div className="flex-shrink-0 border-t border-gray-800/50 bg-gray-900/95 p-6 space-y-4">
         {/* Photo Count Selector */}
-        <div className="mb-4">
-          <div className="flex items-center justify-between mb-2">
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
             <label className="text-sm font-medium text-gray-200">Number of Photos</label>
             <div className="group relative">
               <HelpCircle className="w-4 h-4 text-gray-400 hover:text-white cursor-help" />
