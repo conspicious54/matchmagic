@@ -22,7 +22,7 @@ export function CreditsPopup({ isOpen, onClose }: CreditsPopupProps) {
       onClick={onClose}
     >
       <div 
-        className="relative w-full max-w-2xl bg-gray-900 rounded-2xl shadow-2xl overflow-hidden"
+        className="relative w-full max-w-2xl bg-gray-900 rounded-2xl shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}

@@ -17,18 +17,18 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       <DashboardTopBar />
 
       {/* Main Layout */}
-      <div className="pt-16 flex min-h-[calc(100vh-4rem)]">
+      <div className="flex min-h-[calc(100vh-4rem)] pt-16">
         {/* Sidebar - Hidden on mobile */}
         <div className="hidden md:block w-80 flex-shrink-0">
           <ModelSidebar />
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 md:ml-80">
-          <div className="max-w-[1400px] mx-auto p-4 md:p-8 pb-24 md:pb-8">
+        <main className="flex-1 w-full">
+          <div className="container mx-auto p-4 md:p-8">
             {children}
           </div>
-        </div>
+        </main>
       </div>
 
       {/* Mobile Bottom Navigation */}
