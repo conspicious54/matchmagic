@@ -28,6 +28,7 @@ export async function uploadTrainingPhoto(userId: string, file: File): Promise<U
     const randomString = Math.random().toString(36).substring(2);
     const extension = file.name.split('.').pop();
     const filename = `${timestamp}-${randomString}.${extension}`;
+    // Update path structure to use training/[userid]
     const filePath = `training/${userId}/${filename}`;
 
     // Upload to storage
