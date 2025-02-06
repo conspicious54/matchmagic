@@ -16,15 +16,17 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       <DashboardTopBar />
 
       {/* Main Layout */}
-      <div className="pt-16 flex min-h-screen">
+      <div className="pt-16 flex min-h-[calc(100vh-4rem)]">
         {/* Sidebar - Hidden on mobile */}
-        <div className="hidden md:block">
+        <div className="hidden md:block w-80 flex-shrink-0">
           <ModelSidebar />
         </div>
 
         {/* Main Content */}
-        <main className={`flex-1 p-8 md:ml-80 pb-24 md:pb-8 ${activeTab === 'sidebar' ? 'hidden' : 'block'} md:block`}>
-          {children}
+        <main className={`flex-1 p-4 md:p-8 pb-24 md:pb-8 ${activeTab === 'sidebar' ? 'hidden' : 'block'} md:block`}>
+          <div className="max-w-6xl mx-auto">
+            {children}
+          </div>
         </main>
 
         {/* Mobile Create Tab Content */}

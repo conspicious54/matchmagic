@@ -148,9 +148,9 @@ export function ModelSidebar() {
   };
 
   return (
-    <aside className="w-full md:w-80 bg-gray-900/50 border-r border-gray-800/50 backdrop-blur-xl h-[calc(100vh-8rem)] md:h-[calc(100vh-4rem)] overflow-hidden flex flex-col">
+    <aside className="w-full md:w-80 bg-gray-900/50 border-r border-gray-800/50 backdrop-blur-xl h-[calc(100vh-4rem)] overflow-hidden flex flex-col fixed md:sticky top-16">
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto px-6 pt-6 pb-40 md:pb-32">
+      <div className="flex-1 overflow-y-auto px-4 md:px-6 pt-6 pb-40">
         <div className="max-w-sm mx-auto md:max-w-none md:mx-0 space-y-8">
           {/* Model Status */}
           <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-lg p-4 border border-gray-700/50">
@@ -337,7 +337,7 @@ export function ModelSidebar() {
       </div>
 
       {/* Fixed Bottom Controls */}
-      <div className="fixed bottom-16 md:bottom-0 left-0 right-0 md:left-auto md:right-auto md:w-80 p-6 bg-gradient-to-t from-gray-900 via-gray-900/95 to-transparent">
+      <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 bg-gradient-to-t from-gray-900 via-gray-900/95 to-transparent">
         {/* Photo Count Selector */}
         <div className="mb-4">
           <div className="flex items-center justify-between mb-2">
